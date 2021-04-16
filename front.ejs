@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+
+    <script type="module">
+        let filedata;
+
+        elmThumbC.onchange = async function(){
+            const fl = new FileReader();
+            fl.onload = function(e){
+                elmThumb.src = e.target.result;
+            };
+            fl.readAsDataURL(this.files[0]);
+        }
+
+        elmVideoC.onchange = async function(){
+            const fl = new FileReader();
+            fl.onload = function(e){
+                elmVideo.src = e.target.result;
+            };
+            fl.readAsDataURL(this.files[0]);
+        }
+
+        elmFileC.onchange = async function(){
+            const fl = new FileReader();
+            fl.onload = function(e){
+                filedata = e.target.result;
+            };
+            fl.readAsDataURL(this.files[0]);
+        }
+
+        elmSubmit.onclick = async function(){
+            const orgText = elmSubmit.textContent;
+
+            elmSubmit.disabled = true;
+            elmSubmit.textContent = "Submitting...";
+
+            fetch("/", {
+                method:  "POST",
+                headers: { "content-type": "application/json; charset=utf-8" },
+                body:    JSON.stringify({
+                    name: elmName.value,
+                    age:  elmAge.value,
+                    email: elmEmail.value,
+                    class: elmClass.value,
+                    title: elmTitle.value,
+                    pr:    elmPR.value,
+                    thumb: elmThumb.src,
+                    video: elmVideo.src,
+                    file:  filedata,
+                }),
+            })
+            .then(async function(res){
+                if(res.status === 200){
+                    let obj = await res.json();
+                    if(obj.message === "OK"){
+                        elmSubmit.textContent = "Succeeded";
+                        alert("Thank you! Make a note of the inquiry ID '" + obj.id + "' for this works.");
+                    }else{
+                        alert( JSON.stringify(obj) );
+                        elmSubmit.disabled = false;
+                        elmSubmit.textContent = orgText;
+                    }
+                }else{
+                    alert( res.statusText );
+                    elmSubmit.disabled = false;
+                    elmSubmit.textContent = orgText;
+                }
+            })
+            .catch(function(e){
+                alert( e );
+                elmSubmit.disabled = false;
+                elmSubmit.textContent = orgText;
+            });
+        };
+    </script>
+</head>
+
+<body>
+    <dl>
+        <dt>name:</dt>
+        <dd><input id="elmName" type="text"></dd>
+        <dt>age on the next April 1st:</dt>
+        <dd>
+            <select id="elmAge">
+                <option></option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+            </select>
+        </dd>
+        <dt>email:</dt>
+        <dd><input id="elmEmail" type="text"></dd>
+    </dl>
+    <dl>
+        <dt>class:</dt>
+        <dd>
+            <select id="elmClass">
+                <option></option>
+                <option>Software</option>
+                <option>Hardware</option>
+            </select>
+        </dd>
+        <dt>title:</dt>
+        <dd><input id="elmTitle" type="text"></dd>
+        <dt>pr:</dt>
+        <dd><textarea id="elmPR"></textarea></dd>
+        <dt>thumbnail:</dt>
+        <dd>
+            <div><img id="elmThumb" style="height:3em;"></div>
+            <input id="elmThumbC" type="file">
+        </dd>
+        <dt>video:</dt>
+        <dd>
+            <div><video id="elmVideo" style="height:3em;"></div>
+            <input id="elmVideoC" type="file">
+        </dd>
+        <dt>source files:</dt>
+        <dd>
+            <input id="elmFileC" type="file">
+        </dd>
+    </dl>
+    <dl>
+        <dt></dt>
+        <dd><button id="elmSubmit">Submit</button></dd>
+    </dl>
+</body>
+
+</html>

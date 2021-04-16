@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+
+    <script type="module">
+    fetch("entry"+location.search)
+    .then(async function(res){
+        new Vue({
+            el: '#elmEntry',
+            data: {
+                entry: await res.json(),
+            },
+        });
+    })
+    .catch(function(e){
+        alert(e);
+    });
+    </script>
+</head>
+
+<body>
+    <dl id="elmEntry">
+    <dt>name:</dt>
+        <dd>{{entry.sName}}</dd>
+    <dt>age on the next April 1st:</dt>
+        <dd>{{entry.nAge}}</dd>
+    <dt>email:</dt>
+        <dd>{{entry.sEmail}}</dd>
+    <dt>class:</dt>
+        <dd>{{entry.sClass}}</dd>
+    <dt>title:</dt>
+        <dd>{{entry.sTitle}}</dd>
+    <dt>pr:</dt>
+        <dd>{{entry.sPR}}</dd>
+    <dt>thumbnail:</dt>
+        <dd><img :src="entry.bThumb" style="height:3em;"></dd>
+    <dt>video:</dt>
+        <dd><video :src="entry.bVideo" style="height:3em;"></dd>
+    <dt>source files:</dt>
+        <dd>[Download] (not implemented yet)</dd>
+    </dl>
+</body>
+
+</html>
