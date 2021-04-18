@@ -11,6 +11,20 @@ const router = new Router();{
         ctx.render('front.ejs', { data: {} });
     });
 
+    router.post("/ticket", async function(ctx){
+        const v = await ctx.request.body().value;
+        console.log( v );
+        let code;
+        const db = new DB("joicon.db");{
+            db.query("INSERT INTO TTicket (sEmail) VALUES (?)", [v.email]);
+            code = [...db.query("SELECT sCode from TTicket where id=last_insert_rowid()")][0][0];
+            console.log(code);
+            db.close();
+        }
+        //### send 'code' by email
+        ctx.response.body = { message: "OK" };
+    });
+
     router.post("/", async function(ctx){
         const v = await ctx.request.body().value;
         console.log( v );
