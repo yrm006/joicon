@@ -3,6 +3,7 @@ import { Application, Router} from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
 import { viewEngine, engineFactory, adapterFactory } from "https://deno.land/x/view_engine/mod.ts";
+import { SmtpClient } from "https://deno.land/x/smtp/mod.ts";
 
 
 
@@ -21,7 +22,23 @@ const router = new Router();{
             console.log(code);
             db.close();
         }
-        //### send 'code' by email
+
+        // send mail
+        {
+            const smtp = new SmtpClient();
+            await smtp.connect({
+              hostname: "127.0.0.1",
+            });
+            await smtp.send({
+                from: '"joicon" <aaa@aaa.aaa>',
+                to: v.email,
+                subject: "your ticket code is",
+                content: code,
+            });
+            await smtp.close();
+            console.log("a mail was sent. ", v.email);
+        }
+
         ctx.response.body = { message: "OK" };
     });
 
