@@ -66,9 +66,10 @@
                 method:  "POST",
                 headers: { "content-type": "application/json; charset=utf-8" },
                 body:    JSON.stringify({
+                    email: elmEmail.value,
+                    ticket: elmTicket.value,
                     name: elmName.value,
                     age:  elmAge.value,
-                    email: elmEmail.value,
                     class: elmClass.value,
                     title: elmTitle.value,
                     pr:    elmPR.value,
@@ -82,7 +83,7 @@
                     let obj = await res.json();
                     if(obj.message === "OK"){
                         elmSubmit.textContent = "Succeeded";
-                        alert("Thank you! Make a note of the inquiry ID '" + obj.id + "' for this works.");
+                        alert("Thank you! Make a note of the inquiry code '" + obj.code + "' for this works.");
                     }else{
                         alert( JSON.stringify(obj) );
                         elmSubmit.disabled = false;

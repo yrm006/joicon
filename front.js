@@ -45,15 +45,29 @@ const router = new Router();{
     router.post("/", async function(ctx){
         const v = await ctx.request.body().value;
         console.log( v );
-        let id = 0;
-        const db = new DB("joicon.db");{
-            db.query("INSERT INTO TEntry (sName,nAge,sEmail,sClass,sTitle,sPR,bThumb,bVideo,bFile) VALUES (?,?,?,?,?,?,?,?,?)",
-                [v.name, v.age, v.email, v.class, v.title, v.pr, v.thumb, v.video, v.file]);
-            id = [...db.query("SELECT last_insert_rowid()")][0][0];
-            console.log(id);
-            db.close();
+        let code;
+
+        const db = new DB("joicon.db");
+        db.query("BEGIN");
+        try{
+            db.query("UPDATE TTicket SET dUsed=CURRENT_TIMESTAMP WHERE sEmail=? and sCode=? and dUsed is NULL", [v.email, v.ticket]);
+            if(db.changes === 1){
+                db.query("INSERT INTO TEntry (sName,nAge,sEmail,sCode,sClass,sTitle,sPR,bThumb,bVideo,bFile) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                    [v.name, v.age, v.email, v.ticket, v.class, v.title, v.pr, v.thumb, v.video, v.file]);
+                code = v.ticket;
+            }
+            db.query("COMMIT");
+        }catch(e){
+            console.log(e);
+            db.query("ROLLBACK");
         }
-        ctx.response.body = { message: "OK", id: id };
+        db.close();
+
+        if(code){
+            ctx.response.body = { message: "OK", code: code };
+        }else{
+            ctx.response.body = { message: "NG", reason: "check your email and ticket." };
+        }
     });
 }
 
