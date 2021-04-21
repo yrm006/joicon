@@ -54,12 +54,11 @@ const router = new Router();{
             if(db.changes === 1){
                 db.query("INSERT INTO TEntry (sName,nAge,sEmail,sCode,sClass,sTitle,sPR,bThumb,bVideo,bFile) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     [v.name, v.age, v.email, v.ticket, v.class, v.title, v.pr, v.thumb, v.video, v.file]);
+                db.query("COMMIT");
                 code = v.ticket;
             }
-            db.query("COMMIT");
         }catch(e){
             console.log(e);
-            db.query("ROLLBACK");
         }
         db.close();
 
