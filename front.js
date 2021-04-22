@@ -1,17 +1,12 @@
 //% deno run --allow-net --allow-read --allow-write front.js
-import { Application, Router} from "https://deno.land/x/oak/mod.ts";
+import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
-import { viewEngine, engineFactory, adapterFactory } from "https://deno.land/x/view_engine/mod.ts";
 import { SmtpClient } from "https://deno.land/x/smtp/mod.ts";
 
 
 
 const router = new Router();{
-    router.get("/", async function(ctx){
-        ctx.render('front.ejs', { data: {} });
-    });
-
     router.post("/ticket", async function(ctx){
         const v = await ctx.request.body().value;
         console.log( v );
@@ -74,9 +69,14 @@ const app = new Application();{
     const port = 8090;
 
     app.use(oakCors());
-    app.use(viewEngine(adapterFactory.getOakAdapter(), engineFactory.getEjsEngine()));
     app.use(router.routes());
     app.use(router.allowedMethods());
+    app.use(async function(ctx){
+        await send(ctx, ctx.request.url.pathname, {
+            root: `${Deno.cwd()}/frontwww`,
+            index: "index.html",
+        });
+    });
                                                                         console.log('running on port ', port);
     await app.listen({
         port: port,

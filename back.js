@@ -1,20 +1,11 @@
 //% deno run --allow-net --allow-read --allow-write back.js
-import { Application, Router} from "https://deno.land/x/oak/mod.ts";
+import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
-import { viewEngine, engineFactory, adapterFactory } from "https://deno.land/x/view_engine/mod.ts";
 
 
 
 const router = new Router();{
-    router.get("/", async function(ctx){
-        ctx.render('back.ejs', { data: {} });
-    });
-
-    router.get("/detail", async function(ctx){
-        ctx.render('back-detail.ejs', { data: {} });
-    });
-
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
@@ -49,9 +40,14 @@ const app = new Application();{
     const port = 8091;
 
     app.use(oakCors());
-    app.use(viewEngine(adapterFactory.getOakAdapter(), engineFactory.getEjsEngine()));
     app.use(router.routes());
     app.use(router.allowedMethods());
+    app.use(async function(ctx){
+        await send(ctx, ctx.request.url.pathname, {
+            root: `${Deno.cwd()}/backwww`,
+            index: "index.html",
+        });
+    });
                                                                         console.log('running on port ', port);
     await app.listen({
         port: port,
