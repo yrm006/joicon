@@ -52,7 +52,7 @@ const router = new Router();{
                 db.query("COMMIT");
                 code = v.ticket;
             }else{
-                reason = "check your email and ticket.";
+                reason = "check your email-address and ticket-code.";
             }
             db.close();
         }

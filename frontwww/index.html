@@ -3,120 +3,17 @@
 
 <head>
     <meta charset="utf-8">
-
-    <script type="module">
-        let filedata;
-
-        elmThumbC.onchange = async function(){
-            const fl = new FileReader();
-            fl.onload = function(e){
-                elmThumb.src = e.target.result;
-            };
-            fl.readAsDataURL(this.files[0]);
-        };
-
-        elmVideoC.onchange = async function(){
-            const fl = new FileReader();
-            fl.onload = function(e){
-                elmVideo.src = e.target.result;
-            };
-            fl.readAsDataURL(this.files[0]);
-        };
-
-        elmFileC.onchange = async function(){
-            const fl = new FileReader();
-            fl.onload = function(e){
-                filedata = e.target.result;
-            };
-            fl.readAsDataURL(this.files[0]);
-        };
-
-        elmGetTicket.onclick = async function(){
-            fetch("/ticket", {
-                method:  "POST",
-                headers: { "content-type": "application/json; charset=utf-8" },
-                body:    JSON.stringify({
-                    email: elmEmail.value,
-                }),
-            })
-            .then(async function(res){
-                if(res.status === 200){
-                    let obj = await res.json();
-                    if(obj.message === "OK"){
-                        alert("Check your email box for the Ticket code.");
-                    }else{
-                        alert( JSON.stringify(obj) );
-                    }
-                }else{
-                    alert( res.statusText );
-                }
-            })
-            .catch(function(e){
-                alert( e );
-            });
-        };
-
-        elmSubmit.onclick = async function(){
-            const orgText = elmSubmit.textContent;
-
-            elmSubmit.disabled = true;
-            elmSubmit.textContent = "Submitting...";
-
-            fetch("/", {
-                method:  "POST",
-                headers: { "content-type": "application/json; charset=utf-8" },
-                body:    JSON.stringify({
-                    email: elmEmail.value,
-                    ticket: elmTicket.value,
-                    name: elmName.value,
-                    age:  elmAge.value,
-                    class: elmClass.value,
-                    title: elmTitle.value,
-                    pr:    elmPR.value,
-                    thumb: elmThumb.src,
-                    video: elmVideo.src,
-                    file:  filedata,
-                }),
-            })
-            .then(async function(res){
-                if(res.status === 200){
-                    let obj = await res.json();
-                    if(obj.message === "OK"){
-                        elmSubmit.textContent = "Succeeded";
-                        alert("Thank you! Make a note of the inquiry code '" + obj.code + "' for this works.");
-                    }else{
-                        alert( JSON.stringify(obj) );
-                        elmSubmit.disabled = false;
-                        elmSubmit.textContent = orgText;
-                    }
-                }else{
-                    alert( res.statusText );
-                    elmSubmit.disabled = false;
-                    elmSubmit.textContent = orgText;
-                }
-            })
-            .catch(function(e){
-                alert( e );
-                elmSubmit.disabled = false;
-                elmSubmit.textContent = orgText;
-            });
-        };
-    </script>
+    <script type="module" src="index.js"></script>
 </head>
 
 <body>
+    <h1>PCNこどもプロコン 応募フォーム α1</h1>
+
+    <h2>あなたについて</h2>
     <dl>
-        <dt>email:</dt>
-        <dd>
-            <input id="elmEmail" type="text"> <button id="elmGetTicket">Get a Ticket Code</button>
-        </dd>
-        <dt>ticket code:</dt>
-        <dd><input id="elmTicket" type="text"></dd>
-    </dl>
-    <dl>
-        <dt>name:</dt>
+        <dt>◆お名前:</dt>
         <dd><input id="elmName" type="text"></dd>
-        <dt>age on the next April 1st:</dt>
+        <dt>◆次の4月1日時点における年齢:</dt>
         <dd>
             <select id="elmAge">
                 <option></option>
@@ -131,38 +28,55 @@
                 <option>15</option>
             </select>
         </dd>
+        <dt>◆eメールアドレス:</dt>
+        <dd>
+            <input id="elmEmail" type="text"> <button id="elmGetTicket">チケットコードを取得する</button>
+        </dd>
     </dl>
+
+    <h2>作品について</h2>
     <dl>
-        <dt>class:</dt>
+        <dt>◆チケットコード:</dt>
+        <dd><input id="elmTicket" type="text"></dd>
+        <dt>◆タイトル:</dt>
+        <dd>
+            <input id="elmTitle" type="text">
+        </dd>
+        <dt>◆部門:</dt>
         <dd>
             <select id="elmClass">
                 <option></option>
-                <option>Software</option>
-                <option>Hardware</option>
+                <option value="software">ソフトウェア</option>
+                <option value="hardware">ロボット/電子工作</option>
             </select>
         </dd>
-        <dt>title:</dt>
-        <dd><input id="elmTitle" type="text"></dd>
-        <dt>pr:</dt>
-        <dd><textarea id="elmPR"></textarea></dd>
-        <dt>thumbnail:</dt>
+        <dt>◆コメント:</dt>
         <dd>
-            <div><img id="elmThumb" style="height:3em;"></div>
-            <input id="elmThumbC" type="file">
+            <div>審査員が参考にいたします。</div>
+            <textarea id="elmPR"></textarea>
         </dd>
-        <dt>video:</dt>
+        <dt>◆ソースコード:</dt>
         <dd>
-            <div><video id="elmVideo" style="height:3em;"></div>
-            <input id="elmVideoC" type="file">
-        </dd>
-        <dt>source files:</dt>
-        <dd>
+            <div>審査員が参考にいたします。</div>
+            <div>ファイル多数の場合はzipしてください。</div>
             <input id="elmFileC" type="file">
+        </dd>
+        <dt>◆動画:</dt>
+        <dd>
+            <div>審査員が参考にいたします。</div>
+            <input id="elmVideoC" type="file">
+            <div><video id="elmVideo" style="height:3em;"></div>
+        </dd>
+        <dt>◆サムネイル画像:</dt>
+        <dd>
+            <div>ノミネートリストなどの掲載時に使用いたします。</div>
+            <input id="elmThumbC" type="file">
+            <div><img id="elmThumb" style="height:3em;"></div>
         </dd>
     </dl>
     <dl>
         <dt></dt>
-        <dd><button id="elmSubmit">Submit</button></dd>
+        <dd><button id="elmSubmit">送信</button></dd>
     </dl>
 </body>
 
