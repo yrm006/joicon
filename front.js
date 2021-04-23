@@ -65,10 +65,10 @@ const router = new Router();{
 We have accepted your work:
     Title: ${v.title}
     Class: ${v.class}
-    PR: ${v.pr.length} byte
-    Source: ${v.file.length} byte
-    Video: ${v.video.length} byte
-    Thumb: ${v.thumb.length} byte
+    PR: ${v.pr?.length ?? 0} byte
+    Source: ${v.file?.length ?? 0} byte
+    Video: ${v.video?.length ?? 0} byte
+    Thumb: ${v.thumb?.length ?? 0} byte
 
 Thank you,
 ---
