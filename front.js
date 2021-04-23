@@ -110,9 +110,9 @@ const app = new Application();{
                                                                         console.log('running on port ', port);
     await app.listen({
         port: port,
-        secure: false,//!!!
-        certFile: "server_crt.pem",
-        keyFile: "server_key.pem",
+        // secure: true,
+        // certFile: "server_crt.pem",
+        // keyFile: "server_key.pem",
     });
 }
 
