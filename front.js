@@ -2,7 +2,8 @@
 import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
-import { SmtpClient } from "https://deno.land/x/smtp/mod.ts";
+// import { SmtpClient } from "https://deno.land/x/smtp/mod.ts";
+import { SmtpClient } from "https://raw.githubusercontent.com/yrm006/deno-smtp/master/smtp.ts";
 
 
 
@@ -31,7 +32,7 @@ const router = new Router();{
                 content: code,
             });
             await smtp.close();
-            console.log("a mail was sent. ", v.email);
+            console.log("a ticket mail was sent. ", v.email);
         }
 
         ctx.response.body = { message: "OK" };
@@ -58,6 +59,35 @@ const router = new Router();{
         }
 
         if(code){
+            // send mail
+            {
+                const body = `\
+We have accepted your work:
+    Title: ${v.title}
+    Class: ${v.class}
+    PR: ${v.pr.length} byte
+    Source: ${v.file.length} byte
+    Video: ${v.video.length} byte
+    Thumb: ${v.thumb.length} byte
+
+Thank you,
+---
+Programming Club Network
+`;
+                const smtp = new SmtpClient();
+                await smtp.connect({
+                hostname: "127.0.0.1",
+                });
+                await smtp.send({
+                    from: '"joicon" <aaa@aaa.aaa>',
+                    to: v.email,
+                    subject: "thank you!",
+                    content: body,
+                });
+                await smtp.close();
+                console.log("a accepted mail was sent. ", v.email);
+            }
+
             ctx.response.body = { message: "OK", code: code };
         }else{
             ctx.response.body = { message: "NG", reason: reason };
