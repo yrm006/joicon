@@ -9,7 +9,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb,dCreated from TEntry order by id").asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id").asObjects()];
             db.close();
         }
         ctx.response.body = r;
@@ -19,7 +19,7 @@ const router = new Router();{
         let r = null;
         let id = Number.parseInt(ctx.request.url.searchParams.get("id"));
         const db = new DB("joicon.db");{
-            r = [...db.query("select * from TEntry where id=?", [id]).asObjects()];
+            r = [...db.query("select *,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry where id=?", [id]).asObjects()];
             db.close();
         }
         ctx.response.body = r[0];
@@ -28,7 +28,7 @@ const router = new Router();{
     router.get("/download.json", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select * from TEntry order by id")];
+            r = [...db.query("select *,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id")];
             db.close();
         }
         ctx.response.type = "application/octet-stream";
