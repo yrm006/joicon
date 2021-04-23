@@ -9,7 +9,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb from TEntry order by id").asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,dCreated from TEntry order by id").asObjects()];
             db.close();
         }
         ctx.response.body = r;

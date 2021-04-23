@@ -29,18 +29,22 @@
         <dd>{{entry.nAge}}</dd>
     <dt>email:</dt>
         <dd>{{entry.sEmail}}</dd>
+    <dt>code:</dt>
+        <dd>{{entry.sCode}}</dd>
     <dt>class:</dt>
         <dd>{{entry.sClass}}</dd>
     <dt>title:</dt>
         <dd>{{entry.sTitle}}</dd>
     <dt>pr:</dt>
-        <dd>{{entry.sPR}}</dd>
+        <dd><pre>{{entry.sPR}}</pre></dd>
     <dt>thumbnail:</dt>
-        <dd><img :src="entry.bThumb" style="height:3em;"></dd>
+        <dd><img :src="entry.bThumb" style="height:9em;"></dd>
     <dt>video:</dt>
-        <dd><video :src="entry.bVideo" style="height:3em;"></dd>
+        <dd><video controls :src="entry.bVideo" style="height:9em;"></dd>
     <dt>source files:</dt>
         <dd>[Download] (not implemented yet)</dd>
+    <dt>date:</dt>
+        <dd>{{entry.dCreated}}</dd>
     </dl>
 </body>
 
