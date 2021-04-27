@@ -2,8 +2,31 @@
 import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
+import { decode as base64decode } from "https://deno.land/std@0.95.0/encoding/base64.ts";
 
 
+
+async function doAuth(ctx, next){
+    let user;{
+        const auth = ctx.request.headers.get("Authorization");
+        if(auth){
+            const userpass = (new TextDecoder().decode(base64decode( auth.split(" ")[1] ))).split(":");
+
+            const db = new DB("joicon.db");{
+                user = [...db.query("select name from TJudge where name=? and pass=?", [userpass[0], userpass[1]]).asObjects()][0]?.name;
+                db.close();
+            }
+        }
+    }
+
+    if(user){
+        console.log(`'${user}' accessed.`);
+        await next();
+    }else{
+        ctx.response.status = 401;
+        ctx.response.headers.set("WWW-Authenticate", 'Basic');
+    }
+}
 
 const router = new Router();{
     router.get("/entries", async function(ctx){
@@ -39,6 +62,7 @@ const router = new Router();{
 const app = new Application();{
     const port = 8091;
 
+    app.use(doAuth);
     app.use(oakCors());
     app.use(router.routes());
     app.use(router.allowedMethods());
