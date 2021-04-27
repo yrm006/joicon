@@ -53,7 +53,11 @@ elmSubmit.onclick = async function(){
     const orgText = elmSubmit.textContent;
 
     elmSubmit.disabled = true;
-    elmSubmit.textContent = "Submitting...";
+    elmSubmit.textContent = "Submitting";
+
+    let iv = setInterval(async function(){
+        elmSubmit.textContent = elmSubmit.textContent + ".";
+    }, 333);
 
     fetch("/", {
         method:  "POST",
@@ -75,21 +79,25 @@ elmSubmit.onclick = async function(){
         if(res.status === 200){
             let obj = await res.json();
             if(obj.message === "OK"){
+                clearInterval(iv);
                 elmSubmit.textContent = "Succeeded";
                 alert("Thank you! Make a note of the inquiry code '" + obj.code + "' for this works.");
             }else{
                 alert( JSON.stringify(obj) );
+                clearInterval(iv);
                 elmSubmit.disabled = false;
                 elmSubmit.textContent = orgText;
             }
         }else{
             alert( res.statusText );
+            clearInterval(iv);
             elmSubmit.disabled = false;
             elmSubmit.textContent = orgText;
         }
     })
     .catch(function(e){
         alert( e );
+        clearInterval(iv);
         elmSubmit.disabled = false;
         elmSubmit.textContent = orgText;
     });
