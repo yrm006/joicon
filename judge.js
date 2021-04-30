@@ -1,4 +1,4 @@
-//% deno run --allow-net --allow-read --allow-write back.js
+//% deno run --allow-net --allow-read --allow-write judge.js
 import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
@@ -7,15 +7,24 @@ import { decode as base64decode } from "https://deno.land/std@0.95.0/encoding/ba
 
 
 async function doAuth(ctx, next){
-    let authed = false;{
+    let id;
+    let user;{
         const auth = ctx.request.headers.get("Authorization");
         if(auth){
             const userpass = (new TextDecoder().decode(base64decode( auth.split(" ")[1] ))).split(":");
-            authed = ( userpass[0]==="admin" && userpass[1]==="1234" );
+
+            const db = new DB("joicon.db");{
+                const r = [...db.query("select id,name from TJudge where name=? and pass=?", [userpass[0], userpass[1]]).asObjects()][0];
+                id = r?.id;
+                user = r?.name;
+                db.close();
+            }
         }
     }
 
-    if(authed){
+    if(user){
+        console.log(`'${user}' accessed.`);
+        ctx.judgeid = id;
         await next();
     }else{
         ctx.response.status = 401;
@@ -27,7 +36,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST from TEntry order by id").asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,nJudgment from TEntry left outer join TJudgment on TEntry.id=TJudgment.pEntry and TJudgment.pJudge=? order by id", [ctx.judgeid]).asObjects()];
             db.close();
         }
         ctx.response.body = r;
@@ -43,19 +52,28 @@ const router = new Router();{
         ctx.response.body = r[0];
     });
 
-    router.get("/download.json", async function(ctx){
-        let r = null;
-        const db = new DB("joicon.db");{
-            r = [...db.query("select id,sName,nAge,sCode,sClass,sTitle,sPR,bThumb,bVideo,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id")];
+    router.post("/judgment", async function(ctx){
+        const v = await ctx.request.body().value;
+        console.log( v );
+
+        const db = new DB("joicon.db");
+        db.query("BEGIN");{
+            for(const j of v){
+                db.query("DELETE FROM TJudgment WHERE pJudge=? and pEntry=?", [ctx.judgeid, j.entryid]);
+                if(j.judgment){
+                    db.query("INSERT INTO TJudgment (pJudge,pEntry,nJudgment) VALUES (?,?,?)", [ctx.judgeid, j.entryid, j.judgment]);
+                }
+                // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judgeid, j.entryid]);
+            }
+            db.query("COMMIT");
             db.close();
         }
-        ctx.response.type = "application/octet-stream";
-        ctx.response.body = r;
+        ctx.response.body = { message: "OK" };
     });
 }
 
 const app = new Application();{
-    const port = 8091;
+    const port = 8092;
 
     app.use(doAuth);
     app.use(oakCors());
@@ -63,7 +81,7 @@ const app = new Application();{
     app.use(router.allowedMethods());
     app.use(async function(ctx){
         await send(ctx, ctx.request.url.pathname, {
-            root: `${Deno.cwd()}/backwww`,
+            root: `${Deno.cwd()}/judgewww`,
             index: "index.html",
         });
     });

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-ink.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+
+    <script type="module">
+    fetch("entries")
+    .then(async function(res){
+        new Vue({
+            el: '#elmEntries',
+            data: {
+                entries: await res.json(),
+            },
+        });
+    })
+    .catch(function(e){
+        alert(e);
+    });
+
+
+
+    elmApply.onclick = async function(){
+        let judgments = [];
+        for(const elm of elmEntries.querySelectorAll("input[entryid]") ){
+            judgments.push( { entryid: Number.parseInt(elm.getAttribute("entryid")), judgment: Number.parseFloat(elm.value) } );
+        }
+
+        fetch("/judgment", {
+            method:  "POST",
+            headers: { "content-type": "application/json; charset=utf-8" },
+            body:    JSON.stringify(
+                judgments
+            ),
+        })
+        .then(async function(res){
+            if(res.status === 200){
+                let obj = await res.json();
+                if(obj.message === "OK"){
+                    alert("Thank you for your contribution.");
+                }else{
+                    alert( JSON.stringify(obj) );
+                }
+            }else{
+                alert( res.statusText );
+            }
+        })
+        .catch(function(e){
+            alert( e );
+        });
+    };
+    </script>
+</head>
+
+<body>
+    <table>
+    <tr>
+        <th>ID</th>
+        <th>Thumbnail</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Judgment</th>
+    </tr>
+    <tbody id="elmEntries">
+    <tr v-for="entry in entries">
+        <td>{{entry.id}}</td>
+        <td><img :src="entry.bThumb" style="height:3em;"></td>
+        <td>{{entry.sTitle}}</td>
+        <td><a :href="'detail.html?id='+entry.id">{{entry.dCreatedJST}}</a></td>
+        <td><input :entryid="entry.id" :value="entry.nJudgment??''"></td>
+    </tr>
+    </tbody>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><button id="elmApply"> Apply </button></td>
+    </tr>
+    </table>
+</body>
+
+</html>
