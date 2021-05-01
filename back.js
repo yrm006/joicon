@@ -52,6 +52,26 @@ const router = new Router();{
         ctx.response.type = "application/octet-stream";
         ctx.response.body = r;
     });
+
+    router.get("/judges", async function(ctx){
+        let r = null;
+        const db = new DB("joicon.db");{
+            r = [...db.query("select id,sName,sPass from TJudge order by id").asObjects()];
+            db.close();
+        }
+        ctx.response.body = r;
+    });
+
+    router.post("/add_judge", async function(ctx){
+        const v = await ctx.request.body().value;
+        console.log( v );
+
+        const db = new DB("joicon.db");{
+            db.query("INSERT INTO TJudge (sName,sPass) VALUES (?,?)", [v.name, v.pass]);
+            db.close();
+        }
+        ctx.response.body = { message: "OK" };
+    });
 }
 
 const app = new Application();{

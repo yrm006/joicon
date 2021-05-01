@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura-ink.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+
+    <script type="module">
+    fetch("judges")
+    .then(async function(res){
+        new Vue({
+            el: '#elmJudges',
+            data: {
+                judges: await res.json(),
+            },
+        });
+    })
+    .catch(function(e){
+        alert(e);
+    });
+
+
+
+    elmAdd.onclick = async function(){
+        fetch("/add_judge", {
+            method:  "POST",
+            headers: { "content-type": "application/json; charset=utf-8" },
+            body:    JSON.stringify({
+                name: elmName.value,
+                pass: elmPass.value,
+            }),
+        })
+        .then(async function(res){
+            if(res.status === 200){
+                let obj = await res.json();
+                if(obj.message === "OK"){
+                    location.reload();
+                }else{
+                    alert( JSON.stringify(obj) );
+                }
+            }else{
+                alert( res.statusText );
+            }
+        })
+        .catch(function(e){
+            alert( e );
+        });
+    };
+    </script>
+</head>
+
+<body>
+    <table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Pass</th>
+    </tr>
+    <tbody id="elmJudges">
+    <tr v-for="judge in judges">
+        <td>{{judge.id}}</td>
+        <td>{{judge.sName}}</td>
+        <td>{{judge.sPass}}</td>
+    </tr>
+    </tbody>
+    <tr>
+        <td><button id="elmAdd">Add</button></td>
+        <td><input id="elmName"></td>
+        <td><input id="elmPass"></td>
+    </tr>
+    </table>
+</body>
+
+</html>

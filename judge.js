@@ -14,9 +14,9 @@ async function doAuth(ctx, next){
             const userpass = (new TextDecoder().decode(base64decode( auth.split(" ")[1] ))).split(":");
 
             const db = new DB("joicon.db");{
-                const r = [...db.query("select id,name from TJudge where name=? and pass=?", [userpass[0], userpass[1]]).asObjects()][0];
+                const r = [...db.query("select id,sName from TJudge where sName=? and sPass=?", [userpass[0], userpass[1]]).asObjects()][0];
                 id = r?.id;
-                user = r?.name;
+                user = r?.sName;
                 db.close();
             }
         }

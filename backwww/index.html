@@ -7,44 +7,27 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 
     <script type="module">
-    fetch("entries")
-    .then(async function(res){
-        new Vue({
-            el: '#elmEntries',
-            data: {
-                entries: await res.json(),
-            },
-        });
-    })
-    .catch(function(e){
-        alert(e);
-    });
+    // fetch("entries")
+    // .then(async function(res){
+    //     new Vue({
+    //         el: '#elmEntries',
+    //         data: {
+    //             entries: await res.json(),
+    //         },
+    //     });
+    // })
+    // .catch(function(e){
+    //     alert(e);
+    // });
     </script>
 </head>
 
 <body>
-    <table>
-    <tr>
-        <th>ID</th>
-        <th>Thumbnail</th>
-        <th>Title</th>
-        <th>Date</th>
-    </tr>
-    <tbody id="elmEntries">
-    <tr v-for="entry in entries">
-        <td>{{entry.id}}</td>
-        <td><img :src="entry.bThumb" style="height:3em;"></td>
-        <td>{{entry.sTitle}}</td>
-        <td><a :href="'detail.html?id='+entry.id">{{entry.dCreatedJST}}</a></td>
-    </tr>
-    </tbody>
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href="download.json">[Download]</a></td>
-    </tr>
-    </table>
+    <h1>PCNこどもプロコン 管理システム α1</h1>
+    <ul>
+        <li><a href="entry.html">Entries</a></li>
+        <li><a href="judge.html">Judges</a></li>
+    </ul>
 </body>
 
 </html>
