@@ -7,6 +7,19 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 
     <script type="module">
+    fetch("/judge")
+    .then(async function(res){
+        new Vue({
+            el: '#elmJudge',
+            data: {
+                judge: await res.json(),
+            },
+        });
+    })
+    .catch(function(e){
+        alert( e );
+    });
+
     fetch("entries")
     .then(async function(res){
         new Vue({
@@ -56,6 +69,11 @@
 
 <body>
     <h1>PCNこどもプロコン 審査システム α1</h1>
+
+    <div id="elmJudge">
+        for {{judge.name}} <a href="logout.html">[Logout]</a>
+    </div>
+
     <table>
     <tr>
         <th>ID</th>

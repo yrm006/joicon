@@ -25,6 +25,7 @@ async function doAuth(ctx, next){
     if(user){
         console.log(`'${user}' accessed.`);
         ctx.judgeid = id;
+        ctx.judgename = user;
         await next();
     }else{
         ctx.response.status = 401;
@@ -33,6 +34,16 @@ async function doAuth(ctx, next){
 }
 
 const router = new Router();{
+    router.get("/judge", async function(ctx){
+        ctx.response.body = { name: ctx.judgename };
+    });
+
+    router.get("/logout", async function(ctx){
+        ctx.response.status = 401;
+        ctx.response.headers.set("WWW-Authenticate", 'Basic');
+        ctx.response.body = { message: "OK" };
+    });
+
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
