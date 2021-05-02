@@ -13,6 +13,28 @@
             el: '#elmEntries',
             data: {
                 entries: await res.json(),
+                sortCol: "id",
+                sortDir: "asc"
+            },
+            methods: {
+                sort: async function(s){
+                    if(s === this.sortCol){
+                        this.sortDir = (this.sortDir==="asc") ? "desc" : "asc";
+                    }else{
+                        this.sortCol = s;
+                        this.sortDir = "asc";
+                    }
+                },
+            },
+            computed: {
+                sorted: function(){
+                    return this.entries.sort((a,b) => {
+                        let sc = (this.sortDir === "asc") ? 1 : -1;
+                        if(a[this.sortCol] < b[this.sortCol]) return -sc;
+                        if(a[this.sortCol] > b[this.sortCol]) return +sc;
+                        return 0;
+                    });
+                },
             },
         });
     })
@@ -24,18 +46,20 @@
 
 <body>
     <table>
+    <tbody id="elmEntries">
     <tr>
-        <th>ID</th>
+        <th @click="sort('id')"><a>ID</a></th>
         <th>Thumbnail</th>
         <th>Title</th>
         <th>Date</th>
+        <th @click="sort('nJudgment')"><a>JDG Total</a></th>
     </tr>
-    <tbody id="elmEntries">
-    <tr v-for="entry in entries">
+    <tr v-for="entry in sorted">
         <td>{{entry.id}}</td>
         <td><img :src="entry.bThumb" style="height:3em;"></td>
         <td>{{entry.sTitle}}</td>
         <td><a :href="'detail.html?id='+entry.id">{{entry.dCreatedJST}}</a></td>
+        <td>{{entry.nJudgment}}</td>
     </tr>
     </tbody>
     <tr>
@@ -43,6 +67,7 @@
         <td></td>
         <td></td>
         <td><a href="download.json">[Download]</a></td>
+        <td></td>
     </tr>
     </table>
 </body>
