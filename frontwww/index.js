@@ -25,7 +25,7 @@ elmFileC.onchange = async function(){
 };
 
 elmGetTicket.onclick = async function(){
-    fetch("/ticket", {
+    fetch("ticket", {
         method:  "POST",
         headers: { "content-type": "application/json; charset=utf-8" },
         body:    JSON.stringify({
@@ -59,7 +59,7 @@ elmSubmit.onclick = async function(){
         elmSubmit.textContent = elmSubmit.textContent + ".";
     }, 333);
 
-    fetch("/", {
+    fetch("./", {
         method:  "POST",
         headers: { "content-type": "application/json; charset=utf-8" },
         body:    JSON.stringify({

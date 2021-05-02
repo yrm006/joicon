@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 
     <script type="module">
-    fetch("/judge")
+    fetch("judge")
     .then(async function(res){
         new Vue({
             el: '#elmJudge',
@@ -35,13 +35,30 @@
 
 
 
+    elmLogout.onclick = async function(){
+        alert("Please cancel next auth-form to logout.");
+
+        fetch("logout")
+        .then(async function(res){
+            if(res.status === 401){
+                alert("OK, you logged out.");
+            }else{
+                let obj = await res.json();
+                alert( JSON.stringify(obj) );
+            }
+        })
+        .catch(function(e){
+            alert(e);
+        });
+    };
+
     elmApply.onclick = async function(){
         let judgments = [];
         for(const elm of elmEntries.querySelectorAll("input[entryid]") ){
             judgments.push( { entryid: Number.parseInt(elm.getAttribute("entryid")), judgment: Number.parseFloat(elm.value) } );
         }
 
-        fetch("/judgment", {
+        fetch("judgment", {
             method:  "POST",
             headers: { "content-type": "application/json; charset=utf-8" },
             body:    JSON.stringify(
@@ -70,8 +87,8 @@
 <body>
     <h1>PCNこどもプロコン 審査システム α1</h1>
 
-    <div id="elmJudge">
-        for {{judge.name}} <a href="logout.html">[Logout]</a>
+    <div>
+        <span id="elmJudge">for {{judge.name}}</span> <button id="elmLogout"> Logout </button>
     </div>
 
     <table>

@@ -23,7 +23,7 @@
 
 
     elmAdd.onclick = async function(){
-        fetch("/add_judge", {
+        fetch("add_judge", {
             method:  "POST",
             headers: { "content-type": "application/json; charset=utf-8" },
             body:    JSON.stringify({

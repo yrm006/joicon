@@ -32,6 +32,7 @@ const router = new Router();{
     });
 
     router.get("/logout", async function(ctx){
+        console.log(`'${ctx.judge.sName}' logged out.`);
         ctx.response.status = 401;
         ctx.response.headers.set("WWW-Authenticate", 'Basic');
         ctx.response.body = { message: "OK" };
