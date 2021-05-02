@@ -7,25 +7,18 @@ import { decode as base64decode } from "https://deno.land/std@0.95.0/encoding/ba
 
 
 async function doAuth(ctx, next){
-    let id;
-    let user;{
-        const auth = ctx.request.headers.get("Authorization");
-        if(auth){
-            const userpass = (new TextDecoder().decode(base64decode( auth.split(" ")[1] ))).split(":");
+    const auth = ctx.request.headers.get("Authorization");
+    if(auth){
+        const userpass = (new TextDecoder().decode(base64decode( auth.split(" ")[1] ))).split(":");
 
-            const db = new DB("joicon.db");{
-                const r = [...db.query("select id,sName from TJudge where sName=? and sPass=?", [userpass[0], userpass[1]]).asObjects()][0];
-                id = r?.id;
-                user = r?.sName;
-                db.close();
-            }
+        const db = new DB("joicon.db");{
+            ctx.judge = [...db.query("select id,sName from TJudge where sName=? and sPass=?", [userpass[0], userpass[1]]).asObjects()][0];
+            db.close();
         }
     }
 
-    if(user){
-        console.log(`'${user}' accessed.`);
-        ctx.judgeid = id;
-        ctx.judgename = user;
+    if(ctx.judge){
+        console.log(`'${ctx.judge.sName}' accessed.`);
         await next();
     }else{
         ctx.response.status = 401;
@@ -35,7 +28,7 @@ async function doAuth(ctx, next){
 
 const router = new Router();{
     router.get("/judge", async function(ctx){
-        ctx.response.body = { name: ctx.judgename };
+        ctx.response.body = { name: ctx.judge.sName };
     });
 
     router.get("/logout", async function(ctx){
@@ -47,7 +40,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,nJudgment from TEntry left outer join TJudgment on TEntry.id=TJudgment.pEntry and TJudgment.pJudge=? order by id", [ctx.judgeid]).asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,nJudgment from TEntry left outer join TJudgment on TEntry.id=TJudgment.pEntry and TJudgment.pJudge=? order by id", [ctx.judge.id]).asObjects()];
             db.close();
         }
         ctx.response.body = r;
@@ -70,11 +63,11 @@ const router = new Router();{
         const db = new DB("joicon.db");
         db.query("BEGIN");{
             for(const j of v){
-                db.query("DELETE FROM TJudgment WHERE pJudge=? and pEntry=?", [ctx.judgeid, j.entryid]);
+                db.query("DELETE FROM TJudgment WHERE pJudge=? and pEntry=?", [ctx.judge.id, j.entryid]);
                 if(j.judgment){
-                    db.query("INSERT INTO TJudgment (pJudge,pEntry,nJudgment) VALUES (?,?,?)", [ctx.judgeid, j.entryid, j.judgment]);
+                    db.query("INSERT INTO TJudgment (pJudge,pEntry,nJudgment) VALUES (?,?,?)", [ctx.judge.id, j.entryid, j.judgment]);
                 }
-                // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judgeid, j.entryid]);
+                // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judge.id, j.entryid]);
             }
             db.query("COMMIT");
             db.close();
