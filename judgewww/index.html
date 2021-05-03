@@ -54,8 +54,13 @@
 
     elmApply.onclick = async function(){
         let judgments = [];
-        for(const elm of elmEntries.querySelectorAll("input[entryid]") ){
-            judgments.push( { entryid: Number.parseInt(elm.getAttribute("entryid")), judgment: Number.parseFloat(elm.value) } );
+        for(const elm of elmEntries.querySelectorAll("input[eidJudgment]") ){
+            const eid = Number.parseInt(elm.getAttribute("eidJudgment"));
+            judgments.push({
+                entryid: eid,
+                judgment: Number.parseFloat(elm.value),
+                comment: elmEntries.querySelector(`textarea[eidComment='${eid}']`).value,
+            });
         }
 
         fetch("judgment", {
@@ -97,7 +102,7 @@
         <th>Thumbnail</th>
         <th>Title</th>
         <th>Date</th>
-        <th>Judgment</th>
+        <th>Judgment / Comment</th>
     </tr>
     <tbody id="elmEntries">
     <tr v-for="entry in entries">
@@ -105,7 +110,10 @@
         <td><img :src="entry.bThumb" style="height:3em;"></td>
         <td>{{entry.sTitle}}</td>
         <td><a :href="'detail.html?id='+entry.id">{{entry.dCreatedJST}}</a></td>
-        <td><input :entryid="entry.id" :value="entry.nJudgment??''"></td>
+        <td>
+            <input :eidJudgment="entry.id" :value="entry.nJudgment??''">
+            <textarea :eidComment="entry.id">{{entry.sComment??''}}</textarea>
+        </td>
     </tr>
     </tbody>
     <tr>

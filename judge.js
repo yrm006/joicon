@@ -41,7 +41,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,nJudgment from TEntry left outer join TJudgment on TEntry.id=TJudgment.pEntry and TJudgment.pJudge=? order by id", [ctx.judge.id]).asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,nJudgment,sComment from TEntry left outer join TJudgment on TEntry.id=TJudgment.pEntry and TJudgment.pJudge=? order by id", [ctx.judge.id]).asObjects()];
             db.close();
         }
         ctx.response.body = r;
@@ -62,18 +62,25 @@ const router = new Router();{
         console.log( v );
 
         const db = new DB("joicon.db");
-        db.query("BEGIN");{
+        db.query("BEGIN");
+        try{
             for(const j of v){
                 db.query("DELETE FROM TJudgment WHERE pJudge=? and pEntry=?", [ctx.judge.id, j.entryid]);
                 if(j.judgment){
-                    db.query("INSERT INTO TJudgment (pJudge,pEntry,nJudgment) VALUES (?,?,?)", [ctx.judge.id, j.entryid, j.judgment]);
+                    if(j.comment.length === 0) throw { message: `Write some comments for ${j.entryid}.` };
+                    db.query("INSERT INTO TJudgment (pJudge,pEntry,nJudgment,sComment) VALUES (?,?,?,?)", [ctx.judge.id, j.entryid, j.judgment, j.comment]);
+                }else
+                if(0 < j.comment.length){
+                    throw { message: `Don't comment on ${j.entryid} that aren't judged` };
                 }
                 // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judge.id, j.entryid]);
             }
             db.query("COMMIT");
-            db.close();
+            ctx.response.body = { message: "OK" };
+        }catch(e){
+            ctx.response.body = e;
         }
-        ctx.response.body = { message: "OK" };
+        db.close();
     });
 }
 
