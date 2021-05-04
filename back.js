@@ -3,6 +3,7 @@ import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import { DB } from "https://deno.land/x/sqlite/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
 import { decode as base64decode } from "https://deno.land/std@0.95.0/encoding/base64.ts";
+import { Buffer } from "https://deno.land/std@0.95.0/io/buffer.ts";
 
 
 
@@ -46,11 +47,39 @@ const router = new Router();{
     router.get("/download.json", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
+            //### This will eat up too much memory
             r = [...db.query("select id,sName,nAge,sCode,sClass,sTitle,sPR,bThumb,bVideo,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id")];
             db.close();
         }
         ctx.response.type = "application/octet-stream";
         ctx.response.body = r;
+    });
+
+    router.get("/download.csv", async function(ctx){
+        const buf = new Buffer();
+        const te = new TextEncoder();
+
+        const db = new DB("joicon.db");{
+            const rows = db.query("select id,sName,nAge,sCode,sClass,sTitle,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id");
+            for(const col of rows.columns()){
+                buf.write( te.encode(col.name) );
+                buf.write( te.encode("\t") );
+            }
+            buf.write( te.encode("\n") );
+
+            let row;
+            while( (row = rows.next()).value ){
+                for(const val of row.value){
+                    buf.write( te.encode(val) );
+                    buf.write( te.encode("\t") );
+                }
+                buf.write( te.encode("\n") );
+            }
+
+            db.close();
+        }
+        ctx.response.type = "application/octet-stream";
+        ctx.response.body = buf.bytes({copy:false});
     });
 
     router.get("/judges", async function(ctx){
