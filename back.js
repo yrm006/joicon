@@ -28,7 +28,7 @@ const router = new Router();{
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,sum(nJudgment) as nJudgment from TEntry left outer join TJudgment on id=pEntry group by id order by id").asObjects()];
+            r = [...db.query("select id,sTitle,bThumb,datetime(TEntry.dCreated,'+9 hours') as dCreatedJST,(select sum(nJudgment) from TJudgment where pEntry=id) as nJudgment,(select GROUP_CONCAT(sComment, char(10)) from TJudgment where pEntry=id) as sComments from TEntry order by id").asObjects()];
             db.close();
         }
         ctx.response.body = r;

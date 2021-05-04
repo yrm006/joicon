@@ -53,6 +53,7 @@
         <th>Title</th>
         <th>Date</th>
         <th @click="sort('nJudgment')"><a>JDG Total</a></th>
+        <th>JDG Comments</th>
     </tr>
     <tr v-for="entry in sorted">
         <td>{{entry.id}}</td>
@@ -60,6 +61,7 @@
         <td>{{entry.sTitle}}</td>
         <td><a :href="'detail.html?id='+entry.id">{{entry.dCreatedJST}}</a></td>
         <td>{{entry.nJudgment}}</td>
+        <td><textarea readonly>{{entry.sComments}}</textarea></td>
     </tr>
     </tbody>
     </table>
