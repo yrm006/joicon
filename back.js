@@ -25,6 +25,15 @@ async function doAuth(ctx, next){
 }
 
 const router = new Router();{
+    router.get("/dashboard", async function(ctx){
+        let r = null;
+        const db = new DB("joicon.db");{
+            r = [...db.query("select (select count(*) from TEntry) as nEntries, (select count(*) from TJudge) as nJudgies").asObjects()];
+            db.close();
+        }
+        ctx.response.body = r[0];
+    });
+
     router.get("/entries", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
