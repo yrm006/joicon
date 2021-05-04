@@ -28,7 +28,7 @@ const router = new Router();{
     router.get("/dashboard", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select (select count(*) from TEntry) as nEntries, (select count(*) from TJudge) as nJudgies").asObjects()];
+            r = [...db.query("select (select count(*) from TEntry) as nEntries, (select count(*) from TJudge) as nJudges").asObjects()];
             db.close();
         }
         ctx.response.body = r[0];
