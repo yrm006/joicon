@@ -60,7 +60,7 @@ const router = new Router();{
         const te = new TextEncoder();
 
         const db = new DB("joicon.db");{
-            const rows = db.query("select id,sName,nAge,sCode,sClass,sTitle,datetime(dCreated,'+9 hours') as dCreatedJST from TEntry order by id");
+            const rows = db.query("select id,sName,nAge,sCode,sClass,sTitle,datetime(dCreated,'+9 hours') as dCreatedJST,(select GROUP_CONCAT(sComment, char(10)) from TJudgment where pEntry=id) as sComments from TEntry order by id");
             for(const col of rows.columns()){
                 buf.write( te.encode(col.name) );
                 buf.write( te.encode("\t") );
@@ -70,8 +70,9 @@ const router = new Router();{
             let row;
             while( (row = rows.next()).value ){
                 for(const val of row.value){
-                    buf.write( te.encode(val) );
-                    buf.write( te.encode("\t") );
+                    buf.write( te.encode('"') );
+                    buf.write( te.encode(val?.replace ? val.replace(/"/g, '""') : val) );
+                    buf.write( te.encode('"\t') );
                 }
                 buf.write( te.encode("\n") );
             }
