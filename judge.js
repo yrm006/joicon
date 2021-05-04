@@ -62,8 +62,9 @@ const router = new Router();{
         console.log( v );
 
         const db = new DB("joicon.db");
-        db.query("BEGIN");
         try{
+            db.query("BEGIN");
+
             for(const j of v){
                 db.query("DELETE FROM TJudgment WHERE pJudge=? and pEntry=?", [ctx.judge.id, j.entryid]);
                 if(j.judgment){
@@ -75,8 +76,14 @@ const router = new Router();{
                 }
                 // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judge.id, j.entryid]);
             }
-            db.query("COMMIT");
-            ctx.response.body = { message: "OK" };
+
+            const sum = [...db.query("select sum(nJudgment) from TJudgment where pJudge=?", [ctx.judge.id])][0][0];
+            if(sum === 1.0){
+                db.query("COMMIT");
+                ctx.response.body = { message: "OK" };
+            }else{
+                ctx.response.body = { message: "Make the total 1.0." };
+            }
         }catch(e){
             ctx.response.body = e;
         }
