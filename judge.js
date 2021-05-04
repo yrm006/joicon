@@ -74,16 +74,15 @@ const router = new Router();{
                 if(0 < j.comment.length){
                     throw { message: `Don't comment on ${j.entryid} that aren't judged` };
                 }
-                // db.query("UPDATE TJudgment set nJudgment=?,dJudged=CURRENT_TIMESTAMP WHERE pJudge=? and pEntry=?", [j.judgment??0, ctx.judge.id, j.entryid]);
             }
 
-            const sum = [...db.query("select sum(nJudgment) from TJudgment where pJudge=?", [ctx.judge.id])][0][0];
-            if(sum === 1.0){
+            // const sum = [...db.query("select sum(nJudgment) from TJudgment where pJudge=?", [ctx.judge.id])][0][0];
+            // if(sum === 1.0){
                 db.query("COMMIT");
                 ctx.response.body = { message: "OK" };
-            }else{
-                ctx.response.body = { message: "Make the total 1.0." };
-            }
+            // }else{
+            //     ctx.response.body = { message: "Make the total 1.0." };
+            // }
         }catch(e){
             ctx.response.body = e;
         }
