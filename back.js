@@ -95,7 +95,7 @@ const router = new Router();{
     router.get("/judges", async function(ctx){
         let r = null;
         const db = new DB("joicon.db");{
-            r = [...db.query("select id,sName,sPass from TJudge order by id").asObjects()];
+            r = [...db.query("select id,sName,sPass,(select count(*) from TJudgment where pJudge=id) as nJudged from TJudge order by id").asObjects()];
             db.close();
         }
         ctx.response.body = r;

@@ -56,18 +56,21 @@
         <th>ID</th>
         <th>Name</th>
         <th>Pass</th>
+        <th>Judged</th>
     </tr>
     <tbody id="elmJudges">
     <tr v-for="judge in judges">
         <td>{{judge.id}}</td>
         <td>{{judge.sName}}</td>
         <td>{{judge.sPass}}</td>
+        <td>{{judge.nJudged}}</td>
     </tr>
     </tbody>
     <tr>
         <td><button id="elmAdd">Add</button></td>
         <td><input id="elmName"></td>
         <td><input id="elmPass"></td>
+        <td></td>
     </tr>
     </table>
 </body>
