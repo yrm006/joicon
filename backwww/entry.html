@@ -28,10 +28,11 @@
             },
             computed: {
                 sorted: function(){
-                    return this.entries.sort((a,b) => {
-                        let sc = (this.sortDir === "asc") ? 1 : -1;
-                        if(a[this.sortCol] < b[this.sortCol]) return -sc;
-                        if(a[this.sortCol] > b[this.sortCol]) return +sc;
+                    const that = this;
+                    return this.entries.sort(function(a,b){
+                        let sc = (that.sortDir === "asc") ? 1 : -1;
+                        if(a[that.sortCol] < b[that.sortCol]) return -sc;
+                        if(a[that.sortCol] > b[that.sortCol]) return +sc;
                         return 0;
                     });
                 },
